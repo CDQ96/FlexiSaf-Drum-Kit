@@ -1,4 +1,3 @@
-// Sound data (FreeCodeCamp URLs)
 const soundKits = {
     electronic: {
         Q: { url: "https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3", name: "Heater-1" },
@@ -22,6 +21,37 @@ let currentKit = "electronic";
 const display = document.getElementById("display");
 const drumPadsContainer = document.querySelector(".drum-pads");
 
+// --- OPTIMIZATION START ---
+
+// Object to store pre-loaded Audio objects
+const preloadedAudio = {};
+
+// Function to preload all sounds for a given kit
+function preloadSounds(kitName) {
+    if (!preloadedAudio[kitName]) {
+        preloadedAudio[kitName] = {};
+    }
+    Object.keys(soundKits[kitName]).forEach(key => {
+        const sound = soundKits[kitName][key];
+        // Create an Audio object if it doesn't exist for this sound
+        if (!preloadedAudio[kitName][key]) {
+            preloadedAudio[kitName][key] = new Audio(sound.url);
+            // Optional: You can add an event listener here to know when the audio is loaded
+            // preloadedAudio[kitName][key].addEventListener('canplaythrough', () => {
+            //     console.log(`${sound.name} loaded!`);
+            // });
+        }
+    });
+}
+
+// Preload all electronic sounds on initial load
+preloadSounds("electronic");
+// Preload acoustic sounds as well if you expect quick switching
+preloadSounds("acoustic");
+
+// --- OPTIMIZATION END ---
+
+
 // Creating drum pads
 function createPads() {
     drumPadsContainer.innerHTML = "";
@@ -30,7 +60,7 @@ function createPads() {
         pad.className = "drum-pad";
         pad.id = `pad-${key}`;
         pad.textContent = key;
-        
+
         pad.addEventListener("click", () => playSound(key));
         drumPadsContainer.appendChild(pad);
     });
@@ -41,14 +71,19 @@ let isRecording = false;
 let recordedSequence = [];
 let recordStartTime = null;
 
-// Play sound function 
+// Play sound function
 function playSound(key) {
     const sound = soundKits[currentKit][key];
     if (!sound) return;
-    // Volume function
-    const audio = new Audio(sound.url);
-    audio.volume = document.getElementById("volume").value;
-    audio.play();
+
+    // --- OPTIMIZATION START: Use pre-loaded audio object ---
+    const audio = preloadedAudio[currentKit][key];
+    if (audio) {
+        audio.currentTime = 0; // Rewind to start for instant playback
+        audio.volume = document.getElementById("volume").value;
+        audio.play();
+    }
+    // --- OPTIMIZATION END ---
 
     display.textContent = sound.name;
 
@@ -69,7 +104,14 @@ function playSound(key) {
 // Volume control
 document.getElementById("volume").addEventListener("input", (e) => {
     display.textContent = `Volume: ${Math.round(e.target.value * 100)}%`;
+    // OPTIONAL: Update volume for all preloaded sounds instantly
+    Object.keys(preloadedAudio[currentKit]).forEach(key => {
+        if (preloadedAudio[currentKit][key]) {
+            preloadedAudio[currentKit][key].volume = e.target.value;
+        }
+    });
 });
+
 
 // Keyboard support
 document.addEventListener("keydown", (e) => {
@@ -82,6 +124,8 @@ document.getElementById("kit-selector").addEventListener("change", (e) => {
     currentKit = e.target.value;
     createPads();
     display.textContent = `Kit: ${currentKit}`;
+    // Ensure new kit sounds are preloaded when switching
+    preloadSounds(currentKit);
 });
 
 // Tempo Control

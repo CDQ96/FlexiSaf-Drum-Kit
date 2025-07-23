@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drum Machine</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="drum-machine">
+        <h1>Drum Machine 🥁</h1>
+        
+        <!-- Display & Controls -->
+        <div id="display" class="display">Play a sound</div>
+        
+        <!-- Volume Slider (Beginner) -->
+        <div class="control">
+            <label for="volume">Volume:</label>
+            <input type="range" id="volume" min="0" max="1" step="0.1" value="0.7">
+        </div>
+        
+        <!-- Drum Pads -->
+        <div class="drum-pads">
+            <!-- Refer to the JS file -->
+        </div>
+        
+        <!-- Record/Playback (Intermediate) -->
+        <div class="control">
+            <button id="record-btn">Record</button>
+            <button id="play-btn">Play</button>
+            <button id="download-btn">Download</button>
+        </div>
+        
+        <!-- Kit Switcher (Intermediate) -->
+        <div class="control">
+            <select id="kit-selector">
+                <option value="electronic">Electronic</option>
+                <option value="acoustic">Acoustic</option>
+            </select>
+        </div>
+        
+        <!-- Tempo Control (Intermediate) -->
+        <div class="control">
+            <label for="tempo">Tempo (BPM):</label>
+            <input type="range" id="tempo" min="60" max="180" value="120">
+            <span id="bpm-display">120</span>
+        </div>
+        
+        <!-- Step Sequencer (Advanced) -->
+        <div id="sequencer" class="sequencer">
+            <!-- Will be generated via JS -->
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

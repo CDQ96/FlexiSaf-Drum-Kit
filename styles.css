@@ -1,0 +1,127 @@
+/* ===== COLOR SCHEME ===== */
+:root {
+  --dark-blue: #023047;
+  --teal: #219EBC;
+  --light-blue: #8ECAE6;
+  --yellow: #FFB703;
+}
+
+/* ===== BASE STYLES ===== */
+body {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: var(--light-blue);
+}
+
+#drum-machine {
+  background-color: var(--dark-blue);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  width: 320px;
+  color: white;
+}
+
+/* ===== DISPLAY ===== */
+.display {
+  background-color: var(--teal);
+  color: white;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* ===== DRUM PADS ===== */
+.drum-pads {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.drum-pad {
+  background-color: var(--teal);
+  color: white;
+  border: none;
+  padding: 25px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.drum-pad:hover {
+  background-color: #1a8ba8;
+}
+
+.drum-pad:active, .drum-pad.active {
+  background-color: var(--yellow);
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* ===== CONTROLS ===== */
+.control {
+  margin: 15px 0;
+}
+
+.control label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--light-blue);
+}
+
+.control input[type="range"] {
+  width: 100%;
+  accent-color: var(--yellow); /* Custom slider color */
+}
+
+.control button, .control select {
+  background-color: var(--teal);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  transition: background 0.2s;
+}
+
+.control button:hover, .control select:hover {
+  background-color: #1a8ba8;
+}
+
+/* ===== SEQUENCER (ADVANCED) ===== */
+.sequencer {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.step {
+  background: var(--light-blue);
+  height: 30px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.step.active {
+  background: var(--yellow);
+}
+
+
+@media (max-width: 600px) {
+  #drum-machine { width: 90%; }
+  .drum-pad { padding: 15px; }
+}

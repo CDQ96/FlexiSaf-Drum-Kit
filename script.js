@@ -195,5 +195,28 @@ downloadBtn.addEventListener("click", () => {
 
 
 
+
+// attempt to turn the data file into a sound file
+const audioContext = new AudioContext();
+let recorder;
+
+function startRecording() {
+  recorder = new Recorder(audioContext.destination);
+  recorder.record();
+}
+
+function stopRecording() {
+  recorder.stop();
+  recorder.exportWAV(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "drum-machine.wav";
+    a.click();
+  });
+}
+
+
+
 // Initialize
 createPads();

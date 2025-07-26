@@ -70,6 +70,8 @@ function createPads() {
 let isRecording = false;
 let recordedSequence = [];
 let recordStartTime = null;
+let audioRecorder = null;
+let recordedAudioBlob = null;
 
 // Play sound function
 function playSound(key) {
@@ -142,16 +144,43 @@ tempoSlider.addEventListener("input", (e) => {
 const recordBtn = document.getElementById("record-btn");
 const playBtn = document.getElementById("play-btn");
 
-recordBtn.addEventListener("click", () => {
-    isRecording = !isRecording;
-    recordBtn.textContent = isRecording ? "Stop" : "Record";
-    if (isRecording) {
-        recordedSequence = [];
-        recordStartTime = Date.now();
+recordBtn.addEventListener("click", async () => {
+    if (!isRecording) {
+        // Start recording
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioRecorder = new MediaRecorder(stream);
+            const audioChunks = [];
+
+            audioRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            audioRecorder.onstop = () => {
+                recordedAudioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            audioRecorder.start();
+            isRecording = true;
+            recordStartTime = Date.now();
+            recordedSequence = [];
+            recordBtn.textContent = "Stop";
+            display.textContent = "Recording...";
+        } catch (error) {
+            console.error("Error accessing microphone:", error);
+            display.textContent = "Microphone access denied";
+        }
     } else {
+        // Stop recording
+        if (audioRecorder) {
+            audioRecorder.stop();
+        }
+        isRecording = false;
         recordStartTime = null;
+        recordBtn.textContent = "Record";
+        display.textContent = "Recording stopped";
     }
-    display.textContent = isRecording ? "Recording..." : "Ready";
 });
 
 playBtn.addEventListener("click", () => {
@@ -165,56 +194,49 @@ playBtn.addEventListener("click", () => {
     });
 });
 
-
-//Download code
+// Download code - Fixed to create actual audio files
 const downloadBtn = document.getElementById("download-btn");
 
 downloadBtn.addEventListener("click", () => {
-    if (recordedSequence.length === 0) {
+    if (recordedSequence.length === 0 && !recordedAudioBlob) {
         display.textContent = "Nothing to download.";
         return;
     }
 
-    const sequenceData = {
-        kit: currentKit,
-        tempo: tempo,
-        sequence: recordedSequence
-    };
+    if (recordedAudioBlob) {
+        // Download the actual recorded audio
+        const url = URL.createObjectURL(recordedAudioBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `drum-recording-${Date.now()}.mp3`;
+        a.click();
+        URL.revokeObjectURL(url);
+        display.textContent = "Audio file downloaded!";
+    } else {
+        // Fallback: Download sequence data as JSON (for compatibility)
+        const sequenceData = {
+            kit: currentKit,
+            tempo: tempo,
+            sequence: recordedSequence
+        };
 
-    const blob = new Blob([JSON.stringify(sequenceData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+        const blob = new Blob([JSON.stringify(sequenceData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `drum-sequence-${Date.now()}.json`;
-    a.click();
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `drum-sequence-${Date.now()}.json`;
+        a.click();
 
-    URL.revokeObjectURL(url);
-    display.textContent = "Download ready.";
+        URL.revokeObjectURL(url);
+        display.textContent = "Sequence data downloaded (JSON).";
+    }
 });
 
 
 
 
-// attempt to turn the data file into a sound file
-const audioContext = new AudioContext();
-let recorder;
 
-function startRecording() {
-  recorder = new Recorder(audioContext.destination);
-  recorder.record();
-}
-
-function stopRecording() {
-  recorder.stop();
-  recorder.exportWAV(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "drum-machine.wav";
-    a.click();
-  });
-}
 
 
 
